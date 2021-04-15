@@ -8,15 +8,33 @@ import polars as pl
 import pandas as pd
 
 """
-Usage: 
-    python main.py tests/PA_final.shp output.shp PA
+Example: python main.py tests/PA_final.shp output.shp PA
+
+Usage: main.py [OPTIONS] FILENAME OUTPUT POSTAL_CODE
+
+  Adds CVAP and ACS data to an arbitrary state-level shapefile
+
+Arguments:
+  FILENAME     [required]
+  OUTPUT       [required]
+  POSTAL_CODE  [required]
+
+Options:
+  --overwrite / --no-overwrite    [default: False]
+  --install-completion [bash|zsh|fish|powershell|pwsh]
+                                  Install completion for the specified shell.
+  --show-completion [bash|zsh|fish|powershell|pwsh]
+                                  Show completion for the specified shell, to
+                                  copy it or customize the installation.
+
+  --help                          Show this message and exit.
 """
 
 import warnings; warnings.filterwarnings('ignore', 'GeoSeries.isna', UserWarning) # TODO: make PR to maup to silence this
 
 def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
     """
-    Adds CVAP and ACS data to a shapefile that has a GEOID attribute
+    Adds CVAP and ACS data to an arbitrary state-level shapefile
     """
 
     ## Data fetch

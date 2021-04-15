@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "census-adder"
+version = "0.1.0"
+description = ""
+authors = ["InnovativeInventor <root@max.fan>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+census = "^0.8.17"
+us = "^2.0.2"
+geopandas = "^0.9.0"
+maup = "^0.7"
+typer = "^0.3.2"
+polars = "^0.7.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

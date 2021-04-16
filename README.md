@@ -26,4 +26,11 @@ Options:
   --help                          Show this message and exit.
 ```
 
-NB: You need to manually fetch `nhgis0001_ds244_20195_2019_blck_grp.csv` from NHGIS and place it in the `census/` folder before running.
+## Setup
+You need to manually fetch `nhgis0001_ds244_20195_2019_blck_grp.csv` from NHGIS and place it in the `census/` folder before running.
+To install the deps, ensure that you have `aria2c` (https://aria2.github.io/) installed and `poetry` (via pip).
+Then, do:
+```
+poetry shell
+python main.py [args]
+```

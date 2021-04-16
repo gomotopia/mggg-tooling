@@ -1,36 +1,24 @@
-## Census-adder
-A quick script to maup CVAP and ACS data to an arbitrary shapefile.
+## MGGG-tooling
+This repository contains short and self-contained tools and scripts to process, clean, and create MGGG shapefiles.
+The structure of this repository is inspired by the Unix philosophy of minimalist, modular software development.
 
-```
-Example: python main.py tests/PA_final.shp output.shp PA
-```
+Tools:
+- census_adder.py: A quick script to maup CVAP and ACS data to an arbitrary shapefile.
+- dedup.py: Deduplicate rows in a shapefile
 
-```
-Usage: main.py [OPTIONS] FILENAME OUTPUT POSTAL_CODE
+Tools in the works
+- vestment.py: A tool to add VEST data onto Census VTDs.
+- checker.py: Run automated QA checks on shapefiles
 
-  Adds CVAP and ACS data to an arbitrary state-level shapefile
-
-Arguments:
-  FILENAME     [required]
-  OUTPUT       [required]
-  POSTAL_CODE  [required]
-
-Options:
-  --overwrite / --no-overwrite    [default: False]
-  --install-completion [bash|zsh|fish|powershell|pwsh]
-                                  Install completion for the specified shell.
-  --show-completion [bash|zsh|fish|powershell|pwsh]
-                                  Show completion for the specified shell, to
-                                  copy it or customize the installation.
-
-  --help                          Show this message and exit.
-```
+## Usage
+To see how to use the tool, read the comments at the top of the file or pass `--help` as an argument. Eg: `python dedup.py --help`.
 
 ## Setup
-You need to manually fetch `nhgis0001_ds244_20195_2019_blck_grp.csv` from NHGIS and place it in the `census/` folder before running.
-To install the deps, ensure that you have `aria2c` (https://aria2.github.io/) installed and `poetry` (via pip).
-Then, do:
+For most of the scripts, you can do (make sure to install Poetry via `pip` first):
 ```
 poetry shell
 python main.py [args]
 ```
+
+However, for `census_adder.py` need to manually fetch `nhgis0001_ds244_20195_2019_blck_grp.csv` from NHGIS and place it in the `census/` folder before running.
+You also need to ensure that you have `aria2c` (https://aria2.github.io/) installed.

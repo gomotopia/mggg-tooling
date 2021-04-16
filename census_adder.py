@@ -30,7 +30,12 @@ Options:
   --help                          Show this message and exit.
 """
 
-import warnings; warnings.filterwarnings('ignore', 'GeoSeries.isna', UserWarning) # TODO: make PR to maup to silence this
+import warnings
+
+warnings.filterwarnings(
+    "ignore", "GeoSeries.isna", UserWarning
+)  # TODO: make PR to maup to silence this
+
 
 def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
     """
@@ -44,26 +49,32 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
         os.makedirs("census")
 
     if not os.path.isfile(f"census/{CVAPFILE}"):
-        subprocess.run(f"aria2c https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2019/2019-cvap/{CVAPFILE} -d census", shell=True)
+        subprocess.run(
+            f"aria2c https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2019/2019-cvap/{CVAPFILE} -d census",
+            shell=True,
+        )
 
     if not os.path.isfile("census/BlockGr.csv"):
-        subprocess.run(f"cd census && unzip {CVAPFILE}", shell=True) # unzip
+        subprocess.run(f"cd census && unzip {CVAPFILE}", shell=True)  # unzip
 
     if not os.path.isfile("census/nhgis0001_ds244_20195_2019_blck_grp.csv"):
         # NB: you need to get this file manually
-        raise ValueError("You need to manually fetch nhgis0001_ds244_20195_2019_blck_grp.csv from NHGIS")
+        raise ValueError(
+            "You need to manually fetch nhgis0001_ds244_20195_2019_blck_grp.csv from NHGIS"
+        )
 
     state_cvap_shapes = load_state_cvap_shapes(state)
     if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.zip"):
-        subprocess.run(f"aria2c https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_{state.fips}_bg.zip -d census", shell=True)
+        subprocess.run(
+            f"aria2c https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_{state.fips}_bg.zip -d census",
+            shell=True,
+        )
 
     if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.shp"):
         subprocess.run(f"cd census && unzip tl_2019_{state.fips}_bg.zip", shell=True)
 
     ## Data merge and process
-    block_group_shapes = gpd.read_file(
-        f"census/tl_2019_{state.fips}_bg.shp"
-    )
+    block_group_shapes = gpd.read_file(f"census/tl_2019_{state.fips}_bg.shp")
     block_group_with_acs = pd.merge(
         left=block_group_shapes,
         right=state_cvap_shapes,
@@ -76,18 +87,48 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
     # block_group_with_acs.to_crs(shapefile.crs)
     # shapefile.to_crs(block_group_with_acs.crs)
     # shapefile.to_crs("epsg:4269")
-    shapefile.crs = "epsg:4269" # figure out why this works
+    shapefile.crs = "epsg:4269"  # figure out why this works
 
-    bgs_to_blocks_cols = list(set(['HCVAP', 'HCPOP', 'HPOP','NHCVAP', 'NHCPOP', 'NHPOP','2MORECVAP', '2MORECPOP', '2MOREPOP', 'AMINCVAP', 'AMINCPOP', 'AMINPOP', 'ASIANCVAP', 'ASIANCPOP', 'ASIANPOP', 'BCVAP', 'BCPOP', 'BPOP', 'NHPICVAP', 'NHPICPOP', 'NHPIPOP','WCVAP', 'WCPOP', 'WPOP','CVAP', 'CPOP', 'TOTPOP']).intersection(set(block_group_with_acs.columns)))
+    bgs_to_blocks_cols = list(
+        set(
+            [
+                "HCVAP",
+                "HCPOP",
+                "HPOP",
+                "NHCVAP",
+                "NHCPOP",
+                "NHPOP",
+                "2MORECVAP",
+                "2MORECPOP",
+                "2MOREPOP",
+                "AMINCVAP",
+                "AMINCPOP",
+                "AMINPOP",
+                "ASIANCVAP",
+                "ASIANCPOP",
+                "ASIANPOP",
+                "BCVAP",
+                "BCPOP",
+                "BPOP",
+                "NHPICVAP",
+                "NHPICPOP",
+                "NHPIPOP",
+                "WCVAP",
+                "WCPOP",
+                "WPOP",
+                "CVAP",
+                "CPOP",
+                "TOTPOP",
+            ]
+        ).intersection(set(block_group_with_acs.columns))
+    )
     if overwrite:
         for col in bgs_to_blocks_cols:
             if col in shapefile:
                 del shapefile[col]
 
     with maup.progress():
-        pieces = maup.intersections(
-            block_group_with_acs, shapefile, area_cutoff=0
-        )
+        pieces = maup.intersections(block_group_with_acs, shapefile, area_cutoff=0)
         weights = (
             block_group_with_acs["TOTPOP"]
             .groupby(maup.assign(block_group_with_acs, pieces))
@@ -109,11 +150,16 @@ def load_state_cvap_shapes(state):
     """
     state_name = state.name
     cvap_bgs = pl.scan_csv("census/BlockGr.csv")
-    state_cvap_bgs = cvap_bgs.filter(pl.lazy.col("geoname").str_contains(state_name)).collect().to_pandas() # filtering for state
+    state_cvap_bgs = (
+        cvap_bgs.filter(pl.lazy.col("geoname").str_contains(state_name))
+        .collect()
+        .to_pandas()
+    )  # filtering for state
     race_names = {
         "Total": "TOT",
         "Not Hispanic or Latino": "NH",
-        "American Indian or Alaska Native Alone": "NH_AMIN", "Asian Alone": "NH_ASIAN",
+        "American Indian or Alaska Native Alone": "NH_AMIN",
+        "Asian Alone": "NH_ASIAN",
         "Black or African American Alone": "NH_BLACK",
         "Native Hawaiian or Other Pacific Islander Alone": "NH_NHPI",
         "White Alone": "NH_WHITE",
@@ -140,7 +186,9 @@ def load_state_cvap_shapes(state):
     )
     state_cvap_bgs = state_cvap_bgs.pivot(
         # index="geoid", columns="lntitle", values=["cvap_est", "cit_est", "tot_est"]
-        index="geoid", columns="lntitle", values=["cvap_est", "cit_est"]
+        index="geoid",
+        columns="lntitle",
+        values=["cvap_est", "cit_est"],
     )
     # state_cvap_bgs.rename(columns={"cvap_est": "CVAP", "cit_est": "CPOP", "tot_est": "POP"}, inplace=True)
     state_cvap_bgs.rename(columns={"cvap_est": "CVAP", "cit_est": "CPOP"}, inplace=True)
@@ -184,7 +232,11 @@ def load_state_cvap_shapes(state):
     state_cvap_bgs.reset_index(inplace=True)
     state_cvap_bgs["GEOID"] = state_cvap_bgs["geoid"].apply(lambda x: x[7:])
 
-    race_data = pl.read_csv("census/nhgis0001_ds244_20195_2019_blck_grp.csv", use_pyarrow=False, encoding="utf8-lossy").to_pandas()
+    race_data = pl.read_csv(
+        "census/nhgis0001_ds244_20195_2019_blck_grp.csv",
+        use_pyarrow=False,
+        encoding="utf8-lossy",
+    ).to_pandas()
 
     ## Clean up and relabel race data
     race_nhgis_mappings = {
@@ -205,11 +257,20 @@ def load_state_cvap_shapes(state):
         if "ALUC" in key:
             del race_data[key]
 
-    state_all_bgs = pd.merge(left=state_cvap_bgs, right=race_data, left_on="GEOID", right_on="GEOID")
-    numeric_cols = list(set(race_nhgis_mappings.values()).union(set(to_rename.values())).intersection(set(state_all_bgs.columns)))
-    state_all_bgs[numeric_cols] = state_all_bgs[numeric_cols].apply(pd.to_numeric, errors = 'coerce')
+    state_all_bgs = pd.merge(
+        left=state_cvap_bgs, right=race_data, left_on="GEOID", right_on="GEOID"
+    )
+    numeric_cols = list(
+        set(race_nhgis_mappings.values())
+        .union(set(to_rename.values()))
+        .intersection(set(state_all_bgs.columns))
+    )
+    state_all_bgs[numeric_cols] = state_all_bgs[numeric_cols].apply(
+        pd.to_numeric, errors="coerce"
+    )
 
     return state_all_bgs
+
 
 if __name__ == "__main__":
     typer.run(main)

@@ -45,36 +45,36 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
     ## Data fetch
     state = us.states.lookup(postal_code)
     CVAPFILE = "CVAP_2015-2019_ACS_csv_files.zip"
-    if not os.path.isdir("../census"):
-        os.makedirs("../census")
+    if not os.path.isdir("census"):
+        os.makedirs("census")
 
-    if not os.path.isfile(f"../census/{CVAPFILE}"):
+    if not os.path.isfile(f"census/{CVAPFILE}"):
         subprocess.run(
-            f"aria2c https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2019/2019-cvap/{CVAPFILE} -d ../census",
+            f"aria2c https://www2.census.gov/programs-surveys/decennial/rdo/datasets/2019/2019-cvap/{CVAPFILE} -d census",
             shell=True,
         )
 
-    if not os.path.isfile("../census/BlockGr.csv"):
-        subprocess.run(f"cd ../census && unzip {CVAPFILE}", shell=True)  # unzip
+    if not os.path.isfile("census/BlockGr.csv"):
+        subprocess.run(f"cd census && unzip {CVAPFILE}", shell=True)  # unzip
 
-    if not os.path.isfile("../census/nhgis0001_ds244_20195_2019_blck_grp.csv"):
+    if not os.path.isfile("census/nhgis0001_ds244_20195_2019_blck_grp.csv"):
         # NB: you need to get this file manually
         raise ValueError(
             "You need to manually fetch nhgis0001_ds244_20195_2019_blck_grp.csv from NHGIS"
         )
 
     state_cvap_shapes = load_state_cvap_shapes(state)
-    if not os.path.isfile(f"../census/tl_2019_{state.fips}_bg.zip"):
+    if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.zip"):
         subprocess.run(
-            f"aria2c https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_{state.fips}_bg.zip -d ../census",
+            f"aria2c https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_{state.fips}_bg.zip -d census",
             shell=True,
         )
 
-    if not os.path.isfile(f"../census/tl_2019_{state.fips}_bg.shp"):
-        subprocess.run(f"cd ../census && unzip tl_2019_{state.fips}_bg.zip", shell=True)
+    if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.shp"):
+        subprocess.run(f"cd census && unzip tl_2019_{state.fips}_bg.zip", shell=True)
 
     ## Data merge and process
-    block_group_shapes = gpd.read_file(f"../census/tl_2019_{state.fips}_bg.shp")
+    block_group_shapes = gpd.read_file(f"census/tl_2019_{state.fips}_bg.shp")
     block_group_with_acs = pd.merge(
         left=block_group_shapes,
         right=state_cvap_shapes,
@@ -149,7 +149,7 @@ def load_state_cvap_shapes(state):
     From JN
     """
     state_name = state.name
-    cvap_bgs = pl.scan_csv("../census/BlockGr.csv")
+    cvap_bgs = pl.scan_csv("census/BlockGr.csv")
     state_cvap_bgs = (
         cvap_bgs.filter(pl.lazy.col("geoname").str_contains(state_name))
         .collect()
@@ -233,7 +233,7 @@ def load_state_cvap_shapes(state):
     state_cvap_bgs["GEOID"] = state_cvap_bgs["geoid"].apply(lambda x: x[7:])
 
     race_data = pl.read_csv(
-        "../census/nhgis0001_ds244_20195_2019_blck_grp.csv",
+        "census/nhgis0001_ds244_20195_2019_blck_grp.csv",
         use_pyarrow=False,
         encoding="utf8-lossy",
     ).to_pandas()

@@ -64,7 +64,6 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
     block_group_shapes = gpd.read_file(
         f"census/tl_2019_{state.fips}_bg.shp"
     )
-    # print(block_group_shapes.columns)
     block_group_with_acs = pd.merge(
         left=block_group_shapes,
         right=state_cvap_shapes,
@@ -85,8 +84,6 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
             if col in shapefile:
                 del shapefile[col]
 
-    print("64", block_group_with_acs)
-    print("65", shapefile)
     with maup.progress():
         pieces = maup.intersections(
             block_group_with_acs, shapefile, area_cutoff=0
@@ -103,8 +100,6 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
             weights=weights,
         )
 
-    print("82", shapefile.columns) # debug
-    print("83", shapefile) # debug
     shapefile.to_file(output)
 
 

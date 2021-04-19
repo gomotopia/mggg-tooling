@@ -127,26 +127,29 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
             if col in shapefile:
                 del shapefile[col]
 
-    with maup.progress():
-        pieces = maup.intersections(block_group_with_acs, shapefile, area_cutoff=0)
-        weights = (
-            block_group_with_acs["TOTPOP"]
-            .groupby(maup.assign(block_group_with_acs, pieces))
-            .sum()
-        )
-        weights = maup.normalize(weights, level=0)
-        shapefile[bgs_to_blocks_cols] = maup.prorate(
-            pieces,
-            block_group_with_acs[bgs_to_blocks_cols],
-            weights=weights,
-        )
+    cols = set(bgs_to_blocks_cols)
+    for unit, suffix in [("CVAP", "CVAP"), ("CPOP", "CPOP"), ("TOTPOP", "POP")]:
+        current_cols = {x for x in cols if x.endswith(suffix)}
+        cols -= current_cols
+        current_cols = list(current_cols)
+        with maup.progress():
+            pieces = maup.intersections(block_group_with_acs, shapefile, area_cutoff=0)
+            weights = (
+                block_group_with_acs[unit]
+                .groupby(maup.assign(block_group_with_acs, pieces))
+                .sum()
+            )
+            weights = maup.normalize(weights, level=0)
+            shapefile[current_cols] = maup.prorate(
+                pieces, block_group_with_acs[current_cols], weights=weights,
+            )
 
     shapefile.to_file(output)
 
 
 def load_state_cvap_shapes(state):
     """
-    From JN
+    Credit: Modified from the original code by JN (https://github.com/jenni-niels)
     """
     state_name = state.name
     cvap_bgs = pl.scan_csv("census/BlockGr.csv")

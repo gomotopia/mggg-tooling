@@ -128,12 +128,12 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
                 del shapefile[col]
 
     cols = set(bgs_to_blocks_cols)
-    for unit, suffix in [("CVAP", "CVAP"), ("CPOP", "CPOP"), ("TOTPOP", "POP")]:
-        current_cols = {x for x in cols if x.endswith(suffix)}
-        cols -= current_cols
-        current_cols = list(current_cols)
-        with maup.progress():
-            pieces = maup.intersections(block_group_with_acs, shapefile, area_cutoff=0)
+    with maup.progress():
+        pieces = maup.intersections(block_group_with_acs, shapefile, area_cutoff=0)
+        for unit, suffix in [("CVAP", "CVAP"), ("CPOP", "CPOP"), ("TOTPOP", "POP")]:
+            current_cols = {x for x in cols if x.endswith(suffix)}
+            cols -= current_cols
+            current_cols = list(current_cols)
             weights = (
                 block_group_with_acs[unit]
                 .groupby(maup.assign(block_group_with_acs, pieces))

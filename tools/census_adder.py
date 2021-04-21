@@ -64,21 +64,30 @@ def main(filename: str, output: str, postal_code: str, overwrite: bool = False):
         )
 
     state_cvap_shapes = load_state_cvap_shapes(state)
+    if not os.path.isfile(f"census/tl_2020_{state.fips}_bg20.zip"):
+        subprocess.run(
+            f"aria2c https://www2.census.gov/geo/tiger/TIGER2020PL/STATE/{state.fips}_{state.name.upper()}/{state.fips}/tl_2020_{state.fips}_bg20.zip -d census",
+            shell=True,
+        )
+    """
     if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.zip"):
         subprocess.run(
             f"aria2c https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_{state.fips}_bg.zip -d census",
             shell=True,
         )
-
     if not os.path.isfile(f"census/tl_2019_{state.fips}_bg.shp"):
         subprocess.run(f"cd census && unzip tl_2019_{state.fips}_bg.zip", shell=True)
+    """
+
+    if not os.path.isfile(f"census/tl_2020_{state.fips}_bg20.shp"):
+        subprocess.run(f"cd census && unzip tl_2020_{state.fips}_bg20.zip", shell=True)
 
     ## Data merge and process
-    block_group_shapes = gpd.read_file(f"census/tl_2019_{state.fips}_bg.shp")
+    block_group_shapes = gpd.read_file(f"census/tl_2020_{state.fips}_bg20.shp")
     block_group_with_acs = pd.merge(
         left=block_group_shapes,
         right=state_cvap_shapes,
-        left_on="GEOID",
+        left_on="GEOID20",
         right_on="GEOID",
     )
 

@@ -1,97 +1,57 @@
+|-census LOCAL_DATA_FILE  
+|-examples  
+|-tools  
+
 # Level 0
 typer.run Command Line Client
 must be set to main, with docstring
 
-# Level 1
-Rename main(filename: str, output: str, postal_code: str, overwrite: bool = False)
-to write_full_data_shapefile
+- State FP?
+- Zip Code?
+- Original Filename?
+- Output Filename?
+- Year?
+- Kind? Race-Pop, CVAP, Shp??
+- Kind? NHGIS, etc.
+- Unit?
+- Check for downloads?
 
-- collect_list_of_cvap_bgs
-- get_nhgis_acs_data
-- get_bg_tiger_file
-- get_state_cvap_shapes
-- merge_shapes
-- merge_and_maup_data
-- shapefile.to_file(final_merged_data)
+# Level 1
+_main(filename: str, output: str, postal_code: str, overwrite: bool = False)_  
+make_race_cvap_shp(state_abbrev: str):
+
+- Load Settings
+- `cvap2019.get_cvap_bgs(state_abbrev)(...)`
+- `nhgis.get_nhgis_race_bgs(...) as get_race_bgs(...)`
+- `race_cvap_merge(...)`
+- `tiger.get_tiger_bgs(...)`
+- Data Merge and Process???
+- `geoDataFrame.to_file(...)`
 
 # Level 2 
 
-**collect_list_of_cvap_bgs**
-With zipcode, look for `CVAP_2015-2019_ACS_csv_files.zip`
-which results in `BlockGr.csv` then filter for those in state. 
+**cvap2019.get_cvap_bgs(state_abbrev)(...)**
+- Check data. Use Python libs.
+- Write detailed docs on CVAP format
+- Different years of data?
 
-**get_nhgis_acs_data**
-Check for manually downloaded nhgis file, return acs_race data with cleaned up and relabel NHGIS columns
+**nhgis.get_nhgis_race_bgs as get_race_bgs(...)**
+- Check data (easy to do)
+- Could plug-in direct or census package in Settings.py
 
-**get_bg_tiger_file**
-Download and extract state bg shapes
-return block_group_shapes
+**race_cvap_merge(...)**
 
-**get_state_cvap_shapes**
-Essentially load_state_cvap_shapes
+**tiger.get_tiger_bgs(...)**
+- Check donwnload. Use Python.
+- Different years? 
 
-**merge_and_maup_data**
-If overwite, delete original data
-maup stuff, with weights.
+**Data Merge and Process???**
+- Read Filename if relevant
+- Ensure epsg:4269
+- Collect list of similar columns
+- If overwrite, delete cols
+- Take intersected pieces
+- Prorate on total within CVAP, pop
+- - Use weights to prorate
 
-**shapefile.to_file(final_merged_data)**
-
-# Constants:
-
-    bgs_to_blocks_cols = list(
-        set(
-            [
-                "HCVAP",
-                "HCPOP",
-                "HPOP",
-                "NHCVAP",
-                "NHCPOP
-
-    race_names = {
-        "Total": "TOT",
-        "Not Hispanic or Latino": "NH",
-        "American Indian or Alaska Native Alone": "NH_AMIN",
-        "Asian Alone": "NH_ASIAN",
-
-    ["cvap_est", "cit_est"],
-
-    to_rename = {
-        "CVAP_HISP": "HCVAP",
-        "CPOP_HISP": "HCPOP",
-        "POP_HISP": "HPOP",
-        "CVAP_NH": "NHCVAP",
-
-    race_nhgis_mappings = {
-        "ALUCE001": "TOTPOP",
-        "ALUCE002": "WPOP",
-        "ALUCE003": "BPOP",
-        "ALUCE004": "AMINPOP",
-
-    for unit, suffix in [("CVAP", "CVAP"), ("CPOP", "CPOP"), ("TOTPOP", "POP")]:
-
-
-NHGIS uses 
-
-    ALUKE001	ALUKE002	ALUKE003	ALUKE004	ALUKE005	ALUKE006
-
-CVAP uses 
-
-    geoname	lntitle	geoid	lnnumber	cit_est	cit_moe	cvap_est	cvap_moe
-    Block Group 1, Census Tract 201, Autauga County, Alabama	Total	15000US010010201001	1	725	222	610	186
-    Block Group 1, Census Tract 201, Autauga County, Alabama	Not Hispanic or Latino	15000US010010201001	2	715	221	600	184
-    Block Group 1, Census Tract 201, Autauga County, Alabama	American Indian or Alaska Native Alone	15000US010010201001	3	0	12	0	12
-
-TIGER (EPSG:4269 - NAD 83) uses
-
-    STATEFP20
-    COUNTYFP20
-    TRACTCE20
-    BLKGRPCE20
-    GEOID20
-    NAMELSAD20
-    MTFCC20
-    FUNCSTAT20
-    ALAND20
-    AWATER20
-    INTPTLAT20
-    INTPTLON20
+**geoDataFrame.to_file(...)**

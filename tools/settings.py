@@ -1,10 +1,22 @@
 """
-Doc String
+
+Written by @gomotopia, May 2021.
+
+Based on @InnovativeInventor/MGGG-Tooling for the data processing
+techniques and in turn, @jenni-niels.
+
 """
 
-import nhgis
+##### Local Settings #####
 
 OUTPUT_FILE = "output.shp"
+LOCAL_DATA_FOLDER = "../census"
+
+##### Census CVAP Data, 2015-2019 Estimates, Released Feb. 2021 #####
+
+# Settings for 2019 Census CVAP Data
+# See... https://www.census.gov/programs-surveys/decennial-census/
+#                   about/voting-rights/cvap.html
 
 CENSUS_URL = "https://www2.census.gov/"
 CVAP_NAME = "CVAP_2015-2019_ACS_csv_files"
@@ -13,20 +25,61 @@ CVAP_ZIP_URL = CENSUS_URL + CVAP_URL + CVAP_NAME + ".zip"
 BG_CSV = "BlockGr.csv"
 LOCAL_DATA_FOLDER = "census"
 
-NHGIS_PREFIX = "nhgis0004"
-NHGIS_DATA_NAME = "_ds244_20195_2019_blck_grp"
+##### Census Tiger Data, from 2019 #####
 
-LOCAL_DATA_FOLDER = "../census"
+# 2019 Block Group shapefiles. Use 2019 data for 2019 ACS and CVAP data.
+#   e.g. https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_19_bg.zip
+
 TIGER_PREFIX = "tl_2019_"
 BG_POSTFIX = "_bg"
 
+##### Census ACS Data on Race and Origin, 2019 5-Y Estimates #####
 
-get_race_bgs = nhgis.get_nhgis_race_bgs
+### There are different ways to collect ACS data. Import and select your
+### preferred function here. The function is specified as follows...
 
-# unit = BlockGroups?
+### def get_race_bgs(state_abbrev: str)
+### """
+### Returns 2019 ACS 5Y Race data from Census Table B03002 for the
+### block groups of a selected state.
+###
+### Parameters
+### ----------
+### state_abbrev: str
+###     Two digit state FIPS state or territory code.
+###
+### Returns
+### -------
+### pandas.DataFrame
+###     Containing GEOID, short ID, i.e. State, County, Tract... codes
+###     without 15000US geo. level and nation prfeix, and demographic
+###     columns using MGGG naming standards listed below.
+### """
 
-# mggg-states-qa/src/naming_convention.json
-# my_dict2 = {y:x for x,y in my_dict.iteritems()}
+# Using API
+"""
+from 2019_census_api import get_api_race_bgs
+get_race_bgs = get_api_race_bgs
+"""
+
+# Using NHGIS data
+from nhgis import get_nhgis_race_bgs
+get_race_bgs = get_nhgis_race_bgs
+
+# Settings for NHGIS Data. Must be downloaded manually from
+# https://www.nhgis.org/. Select from table Census B03002, Hispanic or
+# Latino Origin by Race, (NHGIS Code ALUK) for 2019 5Y ACS.
+
+# Watch here! NHGIS_PREFIX may differ for each user.
+NHGIS_PREFIX = "nhgis0004"
+NHGIS_DATA_NAME = "_ds244_20195_2019_blck_grp"
+
+
+
+##### MGGG naming convention from @mggg/mggg-states-qa #####
+
+# More categories in original file "naming_convention.json" found in
+# repository listed above.
 
 NAME_CONVENTION = {
     "TOTPOP":

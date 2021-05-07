@@ -220,7 +220,13 @@ def make_race_cvap_shp(state_abbrev: str):
     """
 
     # Load Settings
+
     state = us.states.lookup(state_abbrev)
+    # try:
+    #     state = us.states.lookup(state_abbrev)
+    # except: 
+    #     ValueError ("Must be a state or territory postal code")
+    
     # Ensure that local Data Folder exists.
     if not os.path.isdir(f"../{SET.LOCAL_DATA_FOLDER}"):
         os.makedirs(f"../{SET.LOCAL_DATA_FOLDER}")

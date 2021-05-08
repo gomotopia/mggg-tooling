@@ -1,16 +1,49 @@
 """
+Generating CVAP and ACS tigerfiles requires three sets of data, which
+are both found remotely and stored locally. The settings for these
+locations are listed here.
 
-Written by @gomotopia, May 2021.
+Refactored by @gomotopia, May 2021, in debt to the original MGGG-Tooling
+by @InnovativeInventor's with heavy credit due to @jenni-niels for the
+data processing techniques.
 
-Based on @InnovativeInventor/MGGG-Tooling for the data processing
-techniques and in turn, @jenni-niels.
+There are different ways to collect ACS data. Import and select your
+preferred function when using get_race_bgs. The function is specified
+as follows and is currently used in census_adder.py
+
+def get_race_bgs(state_abbr: str)
+    '''
+    Returns 2019 ACS 5Y Race data from Census Table B03002 for the
+    block groups of a selected state.
+
+    Parameters
+    ----------
+    state_abbr: str
+        Two digit state FIPS state or territory code.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Containing GEOID, short ID, i.e. State, County, Tract... codes
+        without 15000US geo. level and nation prfeix, and demographic
+        columns using MGGG naming standards listed below.
+    '''
+
+For now, we use NHGIS data to get race ACS data. So in census_adder.py
+we...
+
+# Import your favorite ACS algorithm here
+from nhgis import get_nhgis_race_bgs as get_race_origin_bgs
 
 """
 
 ##### Local Settings #####
 
 OUTPUT_FILE = "output.shp"
-LOCAL_DATA_FOLDER = "../census"
+LOCAL_DATA_FOLDER = "./data/"
+# LOCAL_CENSUS_FOLDER = LOCAL_DATA_FOLDER + "ACS5Y2019Race/"
+DEFAULT_OUPUT_FOLDER = LOCAL_DATA_FOLDER + "cvap_acs_output/"
+DEFAULT_OUTPUT = "cvap_acs"
 
 ##### Census CVAP Data, 2015-2019 Estimates, Released Feb. 2021 #####
 
@@ -20,59 +53,49 @@ LOCAL_DATA_FOLDER = "../census"
 
 CENSUS_URL = "https://www2.census.gov/"
 CVAP_NAME = "CVAP_2015-2019_ACS_csv_files"
+CVAP_FOLDER = "CVAP5Y2019/"
+
 CVAP_URL = "programs-surveys/decennial/rdo/datasets/2019/2019-cvap/"
 CVAP_ZIP_URL = CENSUS_URL + CVAP_URL + CVAP_NAME + ".zip"
 BG_CSV = "BlockGr.csv"
-LOCAL_DATA_FOLDER = "census"
+LOCAL_CVAP_FOLDER = "CVAP"
+
+# e.g. data/CVAP/CVAP_2015-2019_ACS_csv_files/BlockGr.csv
+LOCAL_CVAP_CSV = LOCAL_DATA_FOLDER + CVAP_FOLDER + CVAP_NAME + "/" + BG_CSV
+
+
 
 ##### Census Tiger Data, from 2019 #####
 
 # 2019 Block Group shapefiles. Use 2019 data for 2019 ACS and CVAP data.
 #   e.g. https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_19_bg.zip
 
+LOCAL_TIGER_FOLDER = LOCAL_DATA_FOLDER + "Tiger19_bgs/"
+
+TIGER_URL = CENSUS_URL + "geo/tiger/"
+# Specific to year and block group geography
+TIGER_BG_URL = TIGER_URL + "TIGER2019/BG/"
 TIGER_PREFIX = "tl_2019_"
 BG_POSTFIX = "_bg"
 
+
+
+
 ##### Census ACS Data on Race and Origin, 2019 5-Y Estimates #####
 
-### There are different ways to collect ACS data. Import and select your
-### preferred function here. The function is specified as follows...
-
-### def get_race_bgs(state_abbrev: str)
-### """
-### Returns 2019 ACS 5Y Race data from Census Table B03002 for the
-### block groups of a selected state.
-###
-### Parameters
-### ----------
-### state_abbrev: str
-###     Two digit state FIPS state or territory code.
-###
-### Returns
-### -------
-### pandas.DataFrame
-###     Containing GEOID, short ID, i.e. State, County, Tract... codes
-###     without 15000US geo. level and nation prfeix, and demographic
-###     columns using MGGG naming standards listed below.
-### """
-
-# Using API
-"""
-from 2019_census_api import get_api_race_bgs
-get_race_bgs = get_api_race_bgs
-"""
-
-# Using NHGIS data
-from nhgis import get_nhgis_race_bgs
-get_race_bgs = get_nhgis_race_bgs
-
-# Settings for NHGIS Data. Must be downloaded manually from
-# https://www.nhgis.org/. Select from table Census B03002, Hispanic or
-# Latino Origin by Race, (NHGIS Code ALUK) for 2019 5Y ACS.
+# Settings for using NHGIS Data for ACS. Must be downloaded manually
+# from https://www.nhgis.org/. Select from table Census B03002, Hispanic
+# or Latino Origin by Race, (NHGIS Code ALUK) for 2019 5Y ACS.
 
 # Watch here! NHGIS_PREFIX may differ for each user.
 NHGIS_PREFIX = "nhgis0004"
 NHGIS_DATA_NAME = "_ds244_20195_2019_blck_grp"
+
+# Presumes that NHGIS zip data is extracted into a folder of its own
+# name. e.g. /data/nhgis0004_csv/nhgis0004_ds244_20195_2019_blck_grp.csv
+# For more information, see nhgis.py docs.
+LOCAL_NHGIS_CSV = LOCAL_DATA_FOLDER + NHGIS_PREFIX + "_csv/" + \
+                  NHGIS_PREFIX + NHGIS_DATA_NAME + ".csv"
 
 
 

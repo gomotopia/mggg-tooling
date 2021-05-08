@@ -1,55 +1,82 @@
 """
-    Written by @gomotopia, May 2021, with heavy credit due to
-    @InnovativeInventor/MGGG-Tooling for the data processing techniques
-    and in turn @jenni-niels.
+This module takes a specific set of information from NHGIS and returns
+a pandas DataFrame that follows MGGG naming conventions.
 
-    The National Historical Geographic Information System seeks to
-    simpify the collection of Census data. NHGIS data is easy to find,
-    but is not available by API and must be downloaded. Furthermore,
-    this download requires an account and a pledge not to distribute the
-    information.
+This is one of a few ways we can collect 2019 5Y ACS data from the
+census. Forunately, one file contains ACS Race and Origin infomation for
+all Block Groups in the country.
 
-    For the 2019 ACS, MGGG uses B03002, "Hispanic or Latino Origin by
-    Race" to populate information for the Districtr App. The filename
-    for downloads from NHGIS, follow a pattern.
+Since this data can only be downloaded manually from the NHGIS website,
+per licensing rules, we can only check if the data exists.
 
-    !!! Don't forget to set your own in settings.py !!!
+Finally, in the settings, we set as the get_nhgis_race_bgs as the engine
+for get_race_origin_bgs.
 
-    /nhgis0004_ds244_20195_2019_blck_grp_csv.zip
-    |---(1)---|-----------(2)-----------|(3)|(4)
+Examples
+--------
+This module has two function that can be used separately.
 
-    (1) Is sequential to each NHGIS account. Check the last digit!
-        The download and folder is only named using this first part.
-    (2) This second part roughtly indicates that we want 5YrACS data
-        ending in 2019 down to the Block Group level. We're able to
-        download the whole nation at once.
-    (3) Reveals that these are stored in csv's.
-    (4) Finally, the extension indicates a zip or a csv.
+    We can check to see if a proper NHGIS file specified by the settings
+    exist using check_nhgis_data. If there is not, an exception occurs.
 
-    Within the NHGIS folder, the data is a csv and comes with useful
-    metadata. For NHGIS, estimates from table B30002 are prefixed with
-    ALUKE.
+    This function is used by get_nhgis_race_bgs for a given state which
+    returns a pandas dataFrame of ACS data properly specified by MGGG
+    names with a GEOID, i.e. shorter ones that start with STATEFIPS and
+    not geographic level like the ones found in this file. We need only
+    the numbers after the 'US' in longer GEOIDs.
 
-    Ultimately, a pandas.DataFrame is returned by get_nhgis_race_bgs
-    carrying data in MGGG name standard columns indexed by the simple
-    GEOID.
+    state_dataframe = ""
+    try:
+        state_dataframe = get_nhgis_race_bgs("HI")
+    except:
+        print ("We cannot get NHGIS data for Hawaii")
 
-    !!! Import and set the settings.get_race with this module's function
-    if you're using NHGIS data! Other people use modules written to take
-    data directly from the Census API.
+    In the future, we should be able to return the whole set to keep
+    from generating a new dataframe for each state in a batch.
 
+Notes
+-----
+Refactored by @gomotopia, May 2021, in debt to the original MGGG-Tooling 
+by @InnovativeInventor's with heavy credit due to @jenni-niels for the
+data processing techniques.
+
+The National Historical Geographic Information System seeks to
+simpify the collection of Census data. NHGIS data is easy to find,
+but is not available by API and must be downloaded. Furthermore,
+this download requires an account and a pledge not to distribute the
+information.
+
+With a focus on 2019 ACS CVAP data, these scripts use B03002, "Hispanic
+or Latino Origin by Race" to populate information for the Districtr App.
+The filename for downloads from NHGIS, follow a pattern.
+
+!!! Don't forget to set your own in settings.py !!!
+
+/nhgis0004_ds244_20195_2019_blck_grp_csv.zip
+|---(1)---|-----------(2)-----------|(3)|(4)
+
+(1) Is sequential to each NHGIS account. Check the last digit!
+    The download and folder is only named using this first part.
+(2) This second part roughtly indicates that we want 5YrACS data
+    ending in 2019 down to the Block Group level. We're able to
+    download the whole nation at once.
+(3) Reveals that these are stored in csv's.
+(4) Finally, the extension indicates a zip or a csv.
+
+Within the NHGIS folder, there is a csv and comes with useful
+metadata. For NHGIS, estimates from table B30002 are prefixed with
+ALUKE.
 """
-# import os
+import os
 import us
 import polars as pl # Polars reads csv's faster than pandas!
 
-import settings as SET
+# To make work in project or editor namespace
+try: import settings as SET
+except: import tools.settings as SET
 
-# LOCAL_DATA_FOLDER = "census"
-# NHGIS_PREFIX = "nhgis0004"
-# NHGIS_DATA_NAME = "_ds244_20195_2019_blck_grp"
 
-## Clean up and relabel NHGIS race data
+# A dictionary that converts NHGIS codes to MGGG-standard names
 NHGIS_RACE_NAMES = {
     "ALUKE001": "TOTPOP",
     "ALUKE003": "NH_WHITE",
@@ -62,45 +89,75 @@ NHGIS_RACE_NAMES = {
     "ALUKE012": "HISP"
 }
 
-# # def check_nhgis_data():
-#     """
-#         Doc string
-#     """
-#     # Checks for nhgis0001 file
-#         if not os.path.isfile("census/nhgis0001_ds244_20195_2019_blck_grp.csv"):
-#     # NB: you need to get this file manually
-#         raise ValueError(
-#             "You need to manually fetch nhgis0001_ds244_20195_2019_blck_grp.csv from NHGIS"
-#     )
-
-def get_nhgis_race_bgs(state_abbrev: str):
+def check_nhgis_data():
     """
-        Doc string
+    Checks if NHGIS csv file exists in the location specified by the
+    settings. If none found, an exception is raised.
+
+    Returns
+    -------
+    str
+        Filepath from settings of NHGIS file.
+
+    Raises
+    ------
+    ValueError
+        If no file exists at the NHGIS filepath found in the settings.
+
     """
-    state = us.states.lookup(state_abbrev)
+    file_exists = False
+    if os.path.isfile(SET.LOCAL_NHGIS_CSV):
+        file_exists = True
+    else:
+        # NB: you need to get this file manually
+        raise ValueError("No NHGIS file found. " + \
+                                           "Please fetch NHGIS data manually.")
+    return SET.LOCAL_NHGIS_CSV if file_exists else ""
 
-    # check_nhgis_data()
+def get_nhgis_race_bgs(state_abbr: str):
+    """
+    This returns a pandas DataFrame of NHGIS ACS 2019 Race and Origin
+    data filtered by the given state in columns following MGGG naming
+    standards.
 
-    # Create pandas DataFrame of Blockgroup Race Data from NHGIS
-    nhgis_bgs_pl = pl.scan_csv(
-        f"{SET.LOCAL_DATA_FOLDER}/" +
-        f"{SET.NHGIS_PREFIX}_csv/" +
-        f"{SET.NHGIS_PREFIX}{SET.NHGIS_DATA_NAME}.csv"
-    )
+    Notes
+    -----
+    No Exceptions are thrown in case the csv reader has any problems.
+    Does not verify that this csv file has the proper structure and
+    headings of an NHGIS file.
 
-    # Filter for specific state
-    state_nhgis_bgs = (
-        nhgis_bgs_pl.filter(pl.lazy.col("STATE").str_contains(state.name))
-        .collect()
-        .to_pandas()
-    )
+    Parameters
+    ----------
+    state_abbr: str
+        Two-letter state abbreviation of target state.
 
-    # Use only last part of long GEOID, rename columns
-    state_nhgis_bgs["GEOID"] = state_nhgis_bgs["GEOID"].apply(lambda x: x[7:])
-    state_nhgis_bgs = state_nhgis_bgs.rename(columns=NHGIS_RACE_NAMES)
+    Returns
+    -------
+    pandas.dataFrame or null
+        dataFrame of state BGs Race and Origin data from NHGIS following
+        MGGG naming standards.
 
-    #Keep only GEOID and named columns
-    state_nhgis_bgs = (state_nhgis_bgs[ ["GEOID"]
-        + list(NHGIS_RACE_NAMES.values())])
+    """
+    state = us.states.lookup(state_abbr)
+    state_nhgis_bgs = ""
+    if check_nhgis_data():
+
+        # Create pandas DataFrame of Blockgroup Race Data from NHGIS
+        nhgis_bgs_pl = pl.scan_csv(SET.LOCAL_NHGIS_CSV)
+
+        # Filter for specific state
+        state_nhgis_bgs = (
+            nhgis_bgs_pl.filter(pl.lazy.col("STATE").str_contains(state.name))
+            .collect()
+            .to_pandas()
+        )
+        # Use only last part of long GEOID, rename columns
+        state_nhgis_bgs["GEOID"] = (state_nhgis_bgs["GEOID"]
+                                    .apply(lambda x: x[7:]))
+        state_nhgis_bgs = state_nhgis_bgs.rename(columns=NHGIS_RACE_NAMES)
+
+        #Keep only GEOID and named columns
+        state_nhgis_bgs = (state_nhgis_bgs[ ["GEOID"]
+            + list(NHGIS_RACE_NAMES.values())])
 
     return state_nhgis_bgs

@@ -294,8 +294,8 @@ return only pieces of large shape files.
 Thanks [JN][4] and [Max][5] I was able to learn much more about the census,
 pandas and geopandas. 
 
-As someone more comfortable with command line applications, I found the
-[original][6] to be revelatory. I learned...
+As someone less comfortable with command line applications, I found Max's
+[original][6] repo to be revelatory. I learned...
 - That command line applications can be built with `typer`.
 - That `os` has many ways for Python to make SH commands. I particularly
 learned his way to check for local files and folders and the fetching

@@ -219,12 +219,16 @@ May 2021
 
 🛁☀️🕶️
 
-[4]: ..../jenni-niels
+[1]: https://www.census.gov/programs-surveys/decennial-census/about/voting-rights/cvap.2019.html
 
-[5]: ..../InnovativeInventor/
+[2]: https://www.census.gov/data/developers/data-sets/acs-5year.html
 
-[6]: ..../InnovativeInventor/mggg-tooling
+[4]: https://github.com/jenni-niels
 
-[14]: ..../mggg/mggg-states-qa/blob/main/src/naming_convention.json
+[5]: https://github.com//InnovativeInventor/
+
+[6]: https://github.com/InnovativeInventor/mggg-tooling
+
+[14]: https://github.com/mggg/mggg-states-qa/blob/main/src/naming_convention.json
 
 [21]: https://github.com/gomotopia

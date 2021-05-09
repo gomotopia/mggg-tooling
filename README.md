@@ -296,7 +296,9 @@ pandas and geopandas.
 As someone more comfortable with command line applications, I found the
 [original][6] to be revelatory. I learned...
 - That command line applications can be built with `typer`.
-- That `os` has many ways for Python to make SH commands
+- That `os` has many ways for Python to make SH commands. I particularly
+learned his way to check for local files and folders and the fetching
+of downloads 
 - That `polars` is a fast way to process information and is compatible
 with `pandas`
 - That `subprocess` is a way to manage threads like downloads.

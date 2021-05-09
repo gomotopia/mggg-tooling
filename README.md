@@ -101,7 +101,8 @@ from the census website to the correct directory, but for now, please
 download and place this manually per docs.*
 
 ### [tools.census-adder][13]
-This file, from the original [mggg-tooling][6], served as the original fork for this environment. It offers three functions...
+This file, from the original [mggg-tooling][6], served as the original fork
+for this environment. It offers three functions...
 
 ```
 def race_cvap_merge(race_data, cvap_data):
@@ -323,27 +324,27 @@ May 2021
 
 [3]: https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.2019.html
 
-[4]: ..../jenni-niels
+[4]: https://github.com/jenni-niels
 
-[5]: ..../InnovativeInventor/
+[5]: https://github.com/InnovativeInventor/
 
-[6]: ..../InnovativeInventor/mggg-tooling
+[6]: https://github.com/InnovativeInventor/mggg-tooling
 
-[7]: ../blob/main/fifty_states.py
+[7]: ../main/fifty_states.py
 
-[8]: ../Blob/main/tools/settings.py
+[8]: ../main/tools/settings.py
 
-[9]: ../Blob/main/sample_output
+[9]: ../main/sample_output
 
-[10]: ../blob/main/tools/tiger.py
+[10]: ../main/tools/tiger.py
 
-[11]: ../blob/main/tools/nhgis.py
+[11]: ../main/tools/nhgis.py
 
-[12]: ../blob/main/tools/cvap2019.py
+[12]: ../main/tools/cvap2019.py
 
 [13]: ../blob/main/tools/census-adder.py
 
-[14]: ..../mggg/mggg-states-qa/blob/main/src/naming_convention.json
+[14]: https://github.com/mggg/mggg-states-qa/blob/main/src/naming_convention.json
 
 [15]: https://www.python.org/dev/peps/pep-0008/
 
@@ -353,7 +354,7 @@ May 2021
 
 [18]: ../blog/main/Original_README.md
 
-[19]: ..../mggg/maup
+[19]: https://github.com/mggg/maup
 
 [20]: ./cvap_docs.md
 

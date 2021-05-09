@@ -352,7 +352,7 @@ May 2021
 
 [17]: https://numpydoc.readthedocs.io/en/latest/format.html
 
-[18]: ../blog/main/Original_README.md
+[18]: ../main/Original_README.md
 
 [19]: https://github.com/mggg/maup
 

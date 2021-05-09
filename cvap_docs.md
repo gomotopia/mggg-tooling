@@ -18,14 +18,13 @@ information for the entire country is stored in csv's of different
 geographic units. The one we use is stored as `BlockGr.csv`.
 
 ```
-geoname	                                  	 lnnumber  cit_moe cvap_moe
-geoname	            lntitle	            geoid	   	    cit_est cvap_est	
-Block Group 1...	Total	            15000US...1	1	725	222	610	186
-Block Group 1...	Not Hisp...	        15000US...1	2	725	222	610	186
-Block Group 1...	American Indian...	15000US...1	3	725	222	610	186
-Block Group 1...	Asian...	        15000US...1	4	725	222	610	186
+	                                  	    
+geoname	            lntitle	            geoid	  lnnumber  cit_est cit_moe cvap_est    cvap_moe
+Block Group 1...	Total   	        15000US...1	2	725	222	610	186
+Block Group 1...	Not Hisp...	        15000US...1	2	715	221	600	184
+Block Group 1...	American Indian...	15000US...1	3	0	12	0	12
+Block Group 1...	Asian...	        15000US...1	4	0	12	0	12
 ```
-
 So unusual! 
 
 Each Block Group is identified by...

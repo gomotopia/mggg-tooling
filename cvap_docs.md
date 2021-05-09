@@ -4,7 +4,7 @@
 [2019 5-Year American Community Survey.][2], was released in Februrary
 2021. It is reported in a very unusual format! 
 
-Credit for unlocking this puzzle goes to @jenni-niels [@jenni-niels][4]
+Credit for unlocking this puzzle goes to [@jenni-niels][4]
 and coded in the original [mggg-tooling][6] by [@InnovativeInventor][5].
 Kudos to both!
 

@@ -7,6 +7,103 @@ Refactored by @gomotopia, May 2021, in debt to the original MGGG-Tooling
 by @InnovativeInventor's with heavy credit due to @jenni-niels for the
 data processing techniques.
 
+The default file structure is as follows...
+
+mggg-tools/
+├── tools/
+│   ├── settings.py
+│   ├── tiger.py
+│   ├── nhgis.py
+│   ├── cvap2019.py
+│   └── census_adder.py
+├── data/
+│   ├── CVAP5Y2019/
+│   |   ├── CVAP5Y2019/
+│   |   |   ├──CVAP_2015-2019_ACS_csv_files
+│   |   |   |   ├── BlockGr.csv
+│   |   |   |   └── ...
+│   ├── nhgis0004_csv/
+│   |   ├── nhgis0004_ds244_20195_2019_blck_grp.csv
+│   |   └── ...
+│   ├── Tiger19_bgs/
+│   |   ├── tl_2019_01_bg
+│   |   |   ├── tl_2019_01_bg.shp
+|   |   |   └── ...
+│   |   ├── tl_2019_01_bg.zip
+│   |   └── ...
+│   ├── cvap_acs-output/
+|   |   ├── AL_cvap_acs/
+|   |   |   ├── AL_cvap_acs.shp
+│   |   |   └── ...
+│   |   └── ...
+|   └── ...
+└── ...
+"""
+
+##### Local Settings #####
+
+OUTPUT_FILE = "output.shp"
+LOCAL_DATA_FOLDER = "./data/"
+# LOCAL_CENSUS_FOLDER = LOCAL_DATA_FOLDER + "ACS5Y2019Race/"
+DEFAULT_OUPUT_FOLDER = LOCAL_DATA_FOLDER + "cvap_acs_output/"
+DEFAULT_OUTPUT = "cvap_acs"
+
+##### Census CVAP Data, 2015-2019 Estimates, Released Feb. 2021 #####
+
+# Settings for 2019 Census CVAP Data
+# See... https://www.census.gov/programs-surveys/decennial-census/
+#                   about/voting-rights/cvap.html
+# mggg-tools/
+# ├── data/
+# │   ├── CVAP5Y2019/
+# │   |   ├── CVAP5Y2019/
+# │   |   |   └──CVAP_2015-2019_ACS_csv_files
+# │   |   |       ├── BlockGr.csv
+# │   |   |       └── ...
+# │   |   └── ...
+# |   └── ...
+# └── ...
+
+CENSUS_URL = "https://www2.census.gov/"
+CVAP_NAME = "CVAP_2015-2019_ACS_csv_files"
+CVAP_FOLDER = "CVAP5Y2019/"
+
+CVAP_URL = "programs-surveys/decennial/rdo/datasets/2019/2019-cvap/"
+CVAP_ZIP_URL = CENSUS_URL + CVAP_URL + CVAP_NAME + ".zip"
+BG_CSV = "BlockGr.csv"
+LOCAL_CVAP_FOLDER = "CVAP"
+
+# e.g. data/CVAP/CVAP_2015-2019_ACS_csv_files/BlockGr.csv
+LOCAL_CVAP_CSV = LOCAL_DATA_FOLDER + CVAP_FOLDER + CVAP_NAME + "/" + BG_CSV
+
+##### Census Tiger Data, from 2019 #####
+
+# 2019 Block Group shapefiles. Use 2019 data for 2019 ACS and CVAP data.
+# e.g. https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_19_bg.zip
+#
+# mggg-tools/
+# ├── data/
+# │   ├── Tiger19_bgs/
+# │   |   ├── tl_2019_01_bg
+# │   |   |   ├── tl_2019_01_bg.shp
+# |   |   |   └── ...
+# │   |   ├── tl_2019_01_bg.zip
+# │   |   └── ...
+# |   └── ...
+# └── ...
+
+LOCAL_TIGER_FOLDER = LOCAL_DATA_FOLDER + "Tiger19_bgs/"
+
+TIGER_URL = CENSUS_URL + "geo/tiger/"
+# Specific to year and block group geography
+TIGER_BG_URL = TIGER_URL + "TIGER2019/BG/"
+TIGER_PREFIX = "tl_2019_"
+BG_POSTFIX = "_bg"
+
+
+##### Census ACS Data on Race and Origin, 2019 5-Y Estimates #####
+
+"""
 There are different ways to collect ACS data. Import and select your
 preferred function when using get_race_bgs. The function is specified
 as follows and is currently used in census_adder.py
@@ -37,55 +134,17 @@ from nhgis import get_nhgis_race_bgs as get_race_origin_bgs
 
 """
 
-##### Local Settings #####
-
-OUTPUT_FILE = "output.shp"
-LOCAL_DATA_FOLDER = "./data/"
-# LOCAL_CENSUS_FOLDER = LOCAL_DATA_FOLDER + "ACS5Y2019Race/"
-DEFAULT_OUPUT_FOLDER = LOCAL_DATA_FOLDER + "cvap_acs_output/"
-DEFAULT_OUTPUT = "cvap_acs"
-
-##### Census CVAP Data, 2015-2019 Estimates, Released Feb. 2021 #####
-
-# Settings for 2019 Census CVAP Data
-# See... https://www.census.gov/programs-surveys/decennial-census/
-#                   about/voting-rights/cvap.html
-
-CENSUS_URL = "https://www2.census.gov/"
-CVAP_NAME = "CVAP_2015-2019_ACS_csv_files"
-CVAP_FOLDER = "CVAP5Y2019/"
-
-CVAP_URL = "programs-surveys/decennial/rdo/datasets/2019/2019-cvap/"
-CVAP_ZIP_URL = CENSUS_URL + CVAP_URL + CVAP_NAME + ".zip"
-BG_CSV = "BlockGr.csv"
-LOCAL_CVAP_FOLDER = "CVAP"
-
-# e.g. data/CVAP/CVAP_2015-2019_ACS_csv_files/BlockGr.csv
-LOCAL_CVAP_CSV = LOCAL_DATA_FOLDER + CVAP_FOLDER + CVAP_NAME + "/" + BG_CSV
-
-
-
-##### Census Tiger Data, from 2019 #####
-
-# 2019 Block Group shapefiles. Use 2019 data for 2019 ACS and CVAP data.
-#   e.g. https://www2.census.gov/geo/tiger/TIGER2019/BG/tl_2019_19_bg.zip
-
-LOCAL_TIGER_FOLDER = LOCAL_DATA_FOLDER + "Tiger19_bgs/"
-
-TIGER_URL = CENSUS_URL + "geo/tiger/"
-# Specific to year and block group geography
-TIGER_BG_URL = TIGER_URL + "TIGER2019/BG/"
-TIGER_PREFIX = "tl_2019_"
-BG_POSTFIX = "_bg"
-
-
-
-
-##### Census ACS Data on Race and Origin, 2019 5-Y Estimates #####
-
 # Settings for using NHGIS Data for ACS. Must be downloaded manually
 # from https://www.nhgis.org/. Select from table Census B03002, Hispanic
 # or Latino Origin by Race, (NHGIS Code ALUK) for 2019 5Y ACS.
+
+# mggg-tools/
+# ├── data/
+# │   ├── nhgis0004_csv/
+# │   |   ├── nhgis0004_ds244_20195_2019_blck_grp.csv
+# │   |   └── ...
+# |   └── ...
+# └── ...
 
 # Watch here! NHGIS_PREFIX may differ for each user.
 NHGIS_PREFIX = "nhgis0004"

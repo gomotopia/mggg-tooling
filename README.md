@@ -29,6 +29,24 @@ for state in tqdm(allstates):
 Sample data shapefile output for inspection can be found
 [here][9]. 
 
+## More Examples
+
+Do you need a blank GeoDataFrame for Nevada Block Groups with only a
+GEOID and the geometry? 
+```
+nv_bgs = tiger.get_tiger_bgs("NV")
+```
+Do you need a pandas DataFrame with only 2019 CVAP data for Rhode Island
+block groups?
+```
+ri_cvap_bgs = cvap2019.get_cvap_bgs("RI")
+```
+Do you need a pandas DataFrame with only 2019 ACS Race/Data origin for
+Arkansas Block Groups and do you prefer to use the NHGIS dataset?
+```
+ar_race_bgs = nhgis.get_nhgis_race_bgs("AR")
+```
+
 ## Modular Functionality 
 The tools package in this repository carries the following modules and
 attendant functions.
@@ -41,17 +59,16 @@ state folders and shapefiles that could be in use.
 ```
 def check_download_tiger_file(state_abbrev: str,
                                 download_allowed: bool = False) -> str:
-    """
-    Checks if shapefile exists for specified state. If downloading is
-    allowed, function will download and unzip shapefile from Census
-    website...
-
+```
+Checks if shapefile exists for specified state. If downloading is
+allowed, function will download and unzip shapefile from Census
+website...
+```
 def get_tiger_bgs(state_abbrev: str, \
                     download_allowed: bool = False) -> gpd.geodataframe:
-    """
-    Returns the block groups of a given state or states as a geopandas
-    Geo DataFrame...
 ```
+Returns the block groups of a given state or states as a geopandas
+Geo DataFrame...
 	
 ### [tools.nhgis][11]
 
@@ -62,20 +79,19 @@ are included in one file. For this package, we rely on **NHGIS:ALUK**
 based on **Census B03002** for Race and Origin for 2019 5Y ACS.
 ```
 def check_nhgis_data():
-    """
-    Checks if NHGIS csv file exists in the location specified by the
-    settings. If none found, an exception is raised....
-
-def get_nhgis_race_bgs(state_abbr: str):
-    """
-    This returns a pandas DataFrame of NHGIS ACS 2019 Race and Origin
-    data filtered by the given state in columns following MGGG naming
-    standards...
 ```
+Checks if NHGIS csv file exists in the location specified by the
+settings. If none found, an exception is raised....
+```
+def get_nhgis_race_bgs(state_abbr: str):
+```
+This returns a pandas DataFrame of NHGIS ACS 2019 Race and Origin
+data filtered by the given state in columns following MGGG naming
+standards...
 
-NHGIS is only one of several ways to collect Census data. In
+*NHGIS is only one of several ways to collect Census data. In
 anticipation of future methods, `get_nhgis_race_bgs` is renamed
-`get_race_origin_bgs` whenever it is used. 
+`get_race_origin_bgs` whenever it is used.*
 
 ### [tools.cvap2019][12]:
 
@@ -86,49 +102,47 @@ technique provided by [JN][4] and [Max][5] that I detail in
 
 ```
 def check_download_cvap19_data():
-    """
-    Checks if the CVAP 2019 csv file exists in the location specified by
-    the settings. If none found, an exception is raised...
-
-def get_cvap_bgs(state_abbr: str):
-    """
-    This returns a pandas DataFrame of the Citizens of Voting Age
-    Population in each Block Group of the specified state...
 ```
+Checks if the CVAP 2019 csv file exists in the location specified by
+the settings. If none found, an exception is raised...
+```
+def get_cvap_bgs(state_abbr: str):
+```
+This returns a pandas DataFrame of the Citizens of Voting Age
+Population in each Block Group of the specified state...
 
 *In the future, `check_download_cvap19_data` will download the data
 from the census website to the correct directory, but for now, please
 download and place this manually per docs.*
 
 ### [tools.census-adder][13]
-This file, from the original [mggg-tooling][6], served as the original fork
-for this environment. It offers three functions...
+This file, from the original [mggg-tooling][6], served as the original
+fork for this environment. It offers three functions...
 
 ```
 def race_cvap_merge(race_data, cvap_data):
-    """
-    Conducts inner join of mggg-standardized race and cvap data...
-
-
+```
+Conducts inner join of mggg-standardized race and cvap data...
+```
 def make_race_cvap_gdf(state_abbr: str, download_allowed: bool = False):
-    """
-    Returns geoDataFrame of Block Groups in target State with CVAP and
-    ACS Race information formatted to mggg-standards...
-
+```
+Returns geoDataFrame of Block Groups in target State with CVAP and
+ACS Race information formatted to mggg-standards...
+```
 def make_race_cvap_shp(state_abbr: str, output = "", \
                                         download_allowed: bool = False):
-    """
-    Creates Shapefile of Block Groups in target State with CVAP and ACS
-    Race information formatted to mggg-standards as well...
 ```
-...and is the home for providing CLI compatibility with its parent fork. 
+Creates Shapefile of Block Groups in target State with CVAP and ACS
+Race information formatted to mggg-standards as well...
+
+`census_-_adder` is also the home for providing CLI compatibility with
+its parent fork. 
 ```
 def main(filename: str, output: str, \
                     postal_code: str, overwrite: bool = False):
-    """
-    To ensure some compatibility, we retain the original CLI inputs from
-    original MGGG-tooling repository.
 ```
+To ensure some compatibility, we retain the original CLI inputs from
+original MGGG-tooling repository.
 
 Each can be used separately and return either pandas DataFrames or
 geopandas GeoDataFrames with Block Groups titled by short GEOID and data
@@ -294,8 +308,8 @@ return only pieces of large shape files.
 Thanks [JN][4] and [Max][5] I was able to learn much more about the census,
 pandas and geopandas. 
 
-As someone less comfortable with command line applications, I found Max's
-[original][6] repo to be revelatory. I learned...
+As someone more comfortable with command line applications, I found the
+[original][6] to be revelatory. I learned...
 - That command line applications can be built with `typer`.
 - That `os` has many ways for Python to make SH commands. I particularly
 learned his way to check for local files and folders and the fetching
@@ -342,9 +356,9 @@ May 2021
 
 [12]: ../main/tools/cvap2019.py
 
-[13]: ../blob/main/tools/census-adder.py
+[13]: ../main/tools/census-adder.py
 
-[14]: https://github.com/mggg/mggg-states-qa/blob/main/src/naming_convention.json
+[14]: ..../mggg/mggg-states-qa/blob/main/src/naming_convention.json
 
 [15]: https://www.python.org/dev/peps/pep-0008/
 

@@ -44,7 +44,6 @@ mggg-tools/
 
 OUTPUT_FILE = "output.shp"
 LOCAL_DATA_FOLDER = "./data/"
-# LOCAL_CENSUS_FOLDER = LOCAL_DATA_FOLDER + "ACS5Y2019Race/"
 DEFAULT_OUPUT_FOLDER = LOCAL_DATA_FOLDER + "cvap_acs_output/"
 DEFAULT_OUTPUT = "cvap_acs"
 
@@ -134,6 +133,9 @@ from nhgis import get_nhgis_race_bgs as get_race_origin_bgs
 
 """
 
+# Currently NHGIS or CensusAPI
+ACS_PLUGIN = "CensusAPI"
+
 # Settings for using NHGIS Data for ACS. Must be downloaded manually
 # from https://www.nhgis.org/. Select from table Census B03002, Hispanic
 # or Latino Origin by Race, (NHGIS Code ALUK) for 2019 5Y ACS.
@@ -156,7 +158,20 @@ NHGIS_DATA_NAME = "_ds244_20195_2019_blck_grp"
 LOCAL_NHGIS_CSV = LOCAL_DATA_FOLDER + NHGIS_PREFIX + "_csv/" + \
                   NHGIS_PREFIX + NHGIS_DATA_NAME + ".csv"
 
+# Settings for using downloading B03002 columns, Hispanic or Latino
+# Origin by Race data from the Census API directly.
+#
+# mggg-tools/
+# ├── data/
+# │   ├── ACS5Y2019Race/
+# |   |   ├── AL_race_origin_bg.csv
+# │   |   └── ...
 
+CENSUS2019_API_URL = "https://api.census.gov/data/2019/acs/acs5"
+
+LOCAL_CENSUS_FOLDER = LOCAL_DATA_FOLDER + "ACS5Y2019Race/"
+LOCAL_CENSUS_SUFFIX = "_race_origin_bg"
+CENSUS_BATCH_SIZE = 50
 
 ##### MGGG naming convention from @mggg/mggg-states-qa #####
 

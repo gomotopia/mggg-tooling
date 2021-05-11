@@ -178,7 +178,7 @@ def check_download_tiger_file(state_abbrev: str,
 
     # Is there no local_tiger_state folder? Get one.
     if not os.path.isdir(SET.LOCAL_TIGER_FOLDER):
-        os.makedirs("SET.LOCAL_TIGER_FOLDER")
+        os.makedirs(SET.LOCAL_TIGER_FOLDER)
 
     # The Big Question
     state_shp_exists = False

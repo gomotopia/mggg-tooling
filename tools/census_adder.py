@@ -101,8 +101,18 @@ try: from tiger import get_tiger_bgs
 except: from tools.tiger import get_tiger_bgs
 
 # Import your favorite ACS algorithm here
+try: from acs_plugin_loader import set_race_origin_bgs
+except: from tools.acs_plugin_loader import set_race_origin_bgs
+
+get_race_origin_bgs = set_race_origin_bgs(SET.ACS_PLUGIN)
+
+
+"""
 try: from nhgis import get_nhgis_race_bgs as get_race_origin_bgs
 except: from tools.nhgis import get_nhgis_race_bgs as get_race_origin_bgs
+"""
+
+
 
 # Filters extraneous warnings
 warnings.filterwarnings(
@@ -141,6 +151,7 @@ def race_cvap_merge(race_data, cvap_data):
     ------
 
     """
+
     # Merge together cvap blockgroups and race data together using GEOID
     race_cvap_data = pd.merge(
         left=cvap_data,
@@ -158,6 +169,12 @@ def race_cvap_merge(race_data, cvap_data):
         pd.to_numeric, errors="coerce"
     )
 
+    # Remove extraneous index column if necessary
+    try:
+        race_cvap_data = race_cvap_data.drop(columns='index')
+    except:
+        pass
+
     return race_cvap_data
 
 def make_race_cvap_gdf(state_abbr: str, download_allowed: bool = False):
@@ -172,7 +189,7 @@ def make_race_cvap_gdf(state_abbr: str, download_allowed: bool = False):
 
     download_allowed : bool
         Flag as to whether to download missing data or raise error.
-        Set to avoid downloading by default.  
+        Set to avoid downloading by default.
 
     Returns
     -------
@@ -241,7 +258,6 @@ def make_race_cvap_shp(state_abbr: str, output = "", \
     if output:
         actual_output = output
     else:
-        print(SET.DEFAULT_OUPUT_FOLDER)
         # Ensure Output Folder
         if not os.path.isdir(SET.DEFAULT_OUPUT_FOLDER):
             os.makedirs(SET.DEFAULT_OUPUT_FOLDER)

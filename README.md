@@ -46,6 +46,11 @@ Arkansas Block Groups and do you prefer to use the NHGIS dataset?
 ```
 ar_race_bgs = nhgis.get_nhgis_race_bgs("AR")
 ```
+What if you needed full CVAP and race data for Louisiana as a
+GeoDataFrame and wanted to download any missing data.
+```
+la_race_gdf = census_adder.make_race_cvap_gdf("LA", download_allowed=False):
+```
 
 ## Modular Functionality 
 The tools package in this repository carries the following modules and
@@ -70,29 +75,6 @@ def get_tiger_bgs(state_abbrev: str, \
 Returns the block groups of a given state or states as a geopandas
 Geo DataFrame...
 	
-### [tools.nhgis][11]
-
-The current implementation of sourcing 2019 5Y ACS Data is through
-the [NHGIS][19], which provides easily standardized information but must
-be downloaded manually. Fortunately, block groups for the whole country
-are included in one file. For this package, we rely on **NHGIS:ALUK**
-based on **Census B03002** for Race and Origin for 2019 5Y ACS.
-```
-def check_nhgis_data():
-```
-Checks if NHGIS csv file exists in the location specified by the
-settings. If none found, an exception is raised....
-```
-def get_nhgis_race_bgs(state_abbr: str):
-```
-This returns a pandas DataFrame of NHGIS ACS 2019 Race and Origin
-data filtered by the given state in columns following MGGG naming
-standards...
-
-*NHGIS is only one of several ways to collect Census data. In
-anticipation of future methods, `get_nhgis_race_bgs` is renamed
-`get_race_origin_bgs` whenever it is used.*
-
 ### [tools.cvap2019][12]:
 
 CVAP information is provided in many geographies for the whole nation in
@@ -135,7 +117,7 @@ def make_race_cvap_shp(state_abbr: str, output = "", \
 Creates Shapefile of Block Groups in target State with CVAP and ACS
 Race information formatted to mggg-standards as well...
 
-`census_-_adder` is also the home for providing CLI compatibility with
+`census_adder` is also the home for providing CLI compatibility with
 its parent fork. 
 ```
 def main(filename: str, output: str, \
@@ -147,6 +129,64 @@ original MGGG-tooling repository.
 Each can be used separately and return either pandas DataFrames or
 geopandas GeoDataFrames with Block Groups titled by short GEOID and data
 columns listed in [MGGG Standardized][14] columns. 
+
+## Plugging In
+
+There are many different ways people have used the [Census API][21] to
+collect data from the 2019 Community Survey. This library is designed to
+accomodate different preferences by allowing a way to plug-in favored
+methods such as...
+
+- Direct from the [**API**][21], sourced from a method taught by [JN][4] 
+- By using data scrubbed clean by [**NHGIS**][23]
+- Using pypi-ready [census][24] and [censusdata][25] **packages**. *Not
+yet implemented*
+
+The `tools.acs_plugin_loader` implements the loading of the different
+methods and returns a method to be set as `get_race_origin_bgs` where it
+is used. In the settings file, `ACS_PLUGIN` stores the selected choice
+of collection methods, be it `"NHGIS"` or `"CensusAPI"` or more.
+'''
+get_race_origin_bgs = set_race_origin_bgs(SET.ACS_PLUGIN)
+'''
+
+### [tools.census2019][26]
+
+The current default way for collecting ACS data is by querying the data
+directly using GET commands. To save having to query the API, this
+method checks for any saved copies of the data and gives the option to
+save any ACS data locally. 
+```
+def check_censusapi_data(state_abbr: str):
+```
+Checks if the API data of a given state is stored locally. Returns
+filename or null.
+```
+def get_censusapi_race_bgs(state_abbr: str, save_allowed = True):
+```
+This returns a pandas DataFrame of ACS 2019 Race and Origin for the
+given state in columns following MGGG naming standards source
+directly from the Census API.
+
+
+### [tools.nhgis][11]
+
+One implementation of sourcing 2019 5Y ACS Data is through the
+[NHGIS][19], which provides easily standardized information but must
+be downloaded manually. Fortunately, block groups for the whole country
+are included in one file. For this package, we rely on **NHGIS:ALUK**
+based on **Census B03002** for Race and Origin for 2019 5Y ACS.
+```
+def check_nhgis_data():
+```
+Checks if NHGIS csv file exists in the location specified by the
+settings. If none found, an exception is raised....
+```
+def get_nhgis_race_bgs(state_abbr: str):
+```
+This returns a pandas DataFrame of NHGIS ACS 2019 Race and Origin
+data filtered by the given state in columns following MGGG naming
+standards.
 
 ## Settings
 
@@ -182,6 +222,9 @@ mggg-tools/
 |   |   |   ├── AL_cvap_acs.shp
 │   |   |   └── ...
 │   |   └── ...
+│   ├── ACS5Y2019Race/
+|   |   ├── AL_race_origin_bg.csv
+│   |   └── ...
 |   └── ...
 └── ...
 ```
@@ -203,7 +246,7 @@ As such, it is written using **[PEP8][15], [type hinting][16],
 possible.
 
 ## Compatibility 
-This package is a refactored fork of the original [mggg-tooling][5], a
+This package is a refactored fork of the original [mggg-tooling][6], a
 command line application originally described as... 
 
 ```
@@ -261,19 +304,12 @@ Original CLI and data processing requirements.
 
 ## Plugging for the Future
 
-- ### Versioning, out of the box, pypi 
+### Versioning, out of the box, pypi 
 
    My hope is for this to be a well-used, extensive, modular and turn-key
 pypi candidate that’s easy to use, easy to use and easy to understand.
 The first step is providing ease of download by including pip or poetry
 requirements files.
-
-- ### Different algorithms for ACS
-
-   One way to collect ACS data is directly through the api or by using a
-different python ```census``` package. A plug-in loader, akin to django
-apps, should make it easy to include different ways of collecting data
-provided that mggg naming conventions are used. 
 
 - ### Different geographic areas, with [MAUP][19]
 
@@ -284,10 +320,10 @@ included. A test for this should be building compatibility between this
 and the [original][6].
 
 - ### Different Years and Data Sets
-    A promise of plug-in style modularity points us in a direction towards
-the inclusion of different and future years’ collection of data,
-particularly with the arrival of Census 2020 data. NHGIS, for instance,
-provides a large repository of standardized historical data. 
+    A promise of plug-in style modularity points us in a direction
+towards the inclusion of different and future years’ collection of data,
+particularly with the arrival of Census 2020 data. [NHGIS][23], for
+instance, provides a large repository of standardized historical data. 
 
     MGGG happens to use some census data on housing characteristics and
 other demographic data.
@@ -373,3 +409,13 @@ May 2021
 [20]: ./cvap_docs.md
 
 [21]: https://github.com/gomotopia
+
+[22]: https://www.census.gov/data/developers/data-sets/acs-5year.html
+
+[23]: https://nhgis.org/
+
+[24]: https://github.com/datamade/census
+
+[25]: https://github.com/jtleider/censusdata
+
+[26]: ../main/tools/census2019.py

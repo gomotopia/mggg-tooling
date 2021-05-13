@@ -7,7 +7,9 @@ This tool allows for the creation of State Block Group state shapefiles
 based on the [2019 TIGER boundaries][3] with merged CVAP and 2019
 ACS Race/Origin Census Information. The bulk of this is based on the
 original [mggg-tooling][6] by [@InnovativeInventor][5] which in turn
-credits [@jenni-niels][4] for techniques in data processing.  
+credits [@jenni-niels][4] for techniques in data processing.
+
+<img src="MGGG-Tooling-Plan.png" width=75%>
 
 ## Our Large Nation
 
